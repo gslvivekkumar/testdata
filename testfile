@@ -1,0 +1,65 @@
+function replacedata()
+{
+
+
+  [CmdletBinding()]
+   
+       Param
+    (
+        [Parameter(Mandatory = $true)] [string] $FolderPath,
+      
+        [Parameter(Mandatory = $true)] [string] $MatchWord,
+         [Parameter(Mandatory = $true)] [string] $ReplaceWord,
+          [Parameter(Mandatory = $false)] [string] $FileName,
+        [Parameter(Mandatory = $false)] [string] $TempFile,
+        [Parameter(Mandatory = $false)] [string] $Exact
+       
+    )
+   
+
+add-type -AssemblyName "Microsoft.Office.Interop.Word"
+
+#Folder om mee verbinding te maken
+$SourceFolder = $FolderPath
+cd $SourceFolder
+
+#Keywords waarop gezocht moet worden
+$keyword1 = "password"
+$Forward = $true
+$MatchWholeWord = $true
+
+$Word = New-Object -ComObject Word.Application
+$docs = Get-ChildItem -Path $SourceFolder -Include @("*.doc", "*.docx") -Recurse
+
+
+
+foreach ($doc in $docs)
+{
+   #if(this.$FileName -le 0)
+   #{
+        $condition1 = $Word.Documents.Open($doc.FullName).Content.Find.Execute($keyword1,$Forward,$MatchWholeWord)
+
+        switch($condition1)
+        {
+            $true
+            {
+                #$word.Application.ActiveDocument.Close()
+                Write-Host -f Cyan "$doc contains the Keyword: '$keyword1'"
+                #Move-Item -Path $doc.FullName -Destination $destination
+                $word.Application.ActiveDocument.Close()
+            }
+
+            $false
+            {
+                $word.Application.ActiveDocument.Close()
+                Write-Host -f Red "$doc does not contains the Keyword: $keyword1"
+            }
+        #}
+    }
+
+    Write-Host "Filename '$($doc.Fullname)"
+    Write-Host "`r"
+}
+
+Stop-Process -Name "WINWORD"
+}
